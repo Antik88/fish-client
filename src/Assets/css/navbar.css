@@ -1,0 +1,8 @@
+.tab-item {
+    color: #36526C;
+}
+
+.tab-item.active {
+    background-color: #36526C;
+    color: white;
+}
