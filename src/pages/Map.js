@@ -1,12 +1,12 @@
 import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 
-const About = () => {
+const Map = () => {
     return (
         <Container>
             <Row>
                 <Col md={3}>
-                    <h1>О проекте</h1>
+                    <h1>Интерактивная карта</h1>
                     <p>
                     </p>
                 </Col>
@@ -15,4 +15,4 @@ const About = () => {
     )
 }
 
-export default About
+export default Map 
