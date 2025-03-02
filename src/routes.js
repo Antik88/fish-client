@@ -2,8 +2,8 @@ import Auth from "./pages/Auth";
 import Main from "./pages/MainPage";
 import { LOGIN_ROUTE, MAIN_ROUTE, REGISTRATION_ROUTE, MAP_ROUTE, PRODUCT_ROUTE } from "./utils/consts";
 import Map from "./pages/Map";
-import { Component } from "react";
 import Product from "./pages/Product";
+import ProductPage from "./pages/ProductPage";
 
 export const authRoutes = [
 ];
@@ -28,5 +28,9 @@ export const publicRoutes = [
     {
         path: PRODUCT_ROUTE,
         Component: Product
+    },
+    {
+        path: PRODUCT_ROUTE + "/:productId",
+        Component: ProductPage 
     }
 ];

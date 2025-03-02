@@ -5,3 +5,7 @@ export const getAllRegions = async () => {
     return data
 }
 
+export const getAllRegionById = async (id) => {
+    const { data } = await $host.get(`api/Region/${id}`)
+    return data
+}

@@ -1,14 +1,19 @@
 import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Image, Row } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
+import img from "../Assets/map.png"
 
 const Main = () => {
     return (
         <Container className="mt-2">
             <Row>
-                <Col xs={2} md={3} className="mt-2">
+                <Col md={5} className="mt-2">
+                    <p className="h1 mt-2">
+                        Ваш гид по безопасности и качеству локальных продуктов
+                    </p>
                 </Col>
-                <Col xs={9} md={9}>
+                <Col md={7}>
+                    <Image src={img} width="800px" />
                 </Col>
             </Row>
         </Container>

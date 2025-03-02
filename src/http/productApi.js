@@ -5,6 +5,11 @@ export const getAllProducts = async () => {
     return data
 }
 
+export const getProductById = async (id) => {
+    const { data } = await $host.get(`api/Product/${id}`)
+    return data
+}
+
 export const getProductsByRegionId = async (id) => {
     const { data } = await $host.get(`api/Product/region/${id}`)
     return data

@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
 import img from "../Assets/placeholder.png"
 import { useNavigate } from "react-router-dom";
+import { PRODUCT_ROUTE } from "../utils/consts";
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate()
@@ -16,7 +17,7 @@ const ProductCard = ({ product }) => {
                 <Card.Text>
                     {product.originInfo}
                 </Card.Text>
-                <Button variant="primary" onClick={() => navigate("/")}>Подробнее</Button>
+                <Button variant="primary" onClick={() => navigate(PRODUCT_ROUTE + `/${product.productId}`)}>Подробнее</Button>
             </Card.Body>
         </Card>
     );
