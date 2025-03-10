@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { getAllProducts, getProductsByRegionId, getAllProductsByName } from "../http/productApi";
 import { getAllRegions } from "../http/regionApi";
+import NotFound from "../components/NotFound";
 
 const Product = () => {
     const location = useLocation();
@@ -32,7 +33,7 @@ const Product = () => {
                 setIsLoading(false);
             });
         }
-    }, [location.search]); // Перезапуск при изменении URL
+    }, [location.search]);
 
     const handleRegionChange = async (event) => {
         const regionId = event.target.value;
@@ -110,7 +111,7 @@ const Product = () => {
             </Row>
             <Row>
                 {products.length === 0 ? (
-                    <p>Продукты не найдены</p>
+                    <NotFound />
                 ) : (
                     products.map((product) => (
                         <Col key={product.productId} md={3} className="mb-4">
