@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import { Col, Container, Image, Row, Spinner, Table } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getProductById } from "../http/productApi";
 import img from "../Assets/placeholder.png";
 import { getAllRegionById, getAllRegions } from "../http/regionApi";
+import { COMPARE } from "../utils/consts";
 
 const ProductPage = () => {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
     const [productRegion, setProductRegion] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!productId) return;
@@ -82,6 +85,16 @@ const ProductPage = () => {
                             <tr><td><strong>Информация о происхождении</strong></td><td>{product.originInfo}</td></tr>
                         </tbody>
                     </Table>
+                </Col>
+            </Row>
+            <Row className="mb-2">
+                <Col md={3}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate(COMPARE, { state: { currentProduct: product, compareProducts: [] } })}
+                    >
+                        Сравнить
+                    </Button>
                 </Col>
             </Row>
         </Container>
