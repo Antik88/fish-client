@@ -4,7 +4,7 @@ import { Col, Container, Image, Row, Spinner, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductById } from "../http/productApi";
 import img from "../Assets/placeholder.png";
-import { getAllRegionById, getAllRegions } from "../http/regionApi";
+import { getAllRegionById } from "../http/regionApi";
 import { COMPARE } from "../utils/consts";
 
 const ProductPage = () => {
@@ -49,6 +49,18 @@ const ProductPage = () => {
         );
     }
 
+    const handleCompare = () => {
+        const existingCompareList = JSON.parse(localStorage.getItem("compareProducts") || "[]");
+
+        if (!existingCompareList.some((p) => p.productId === product.productId)) {
+            existingCompareList.push(product);
+        }
+
+        localStorage.setItem("compareProducts", JSON.stringify(existingCompareList));
+        navigate(COMPARE);
+    };
+
+
     return (
         <Container>
             <Row className="mb-4">
@@ -89,10 +101,7 @@ const ProductPage = () => {
             </Row>
             <Row className="mb-2">
                 <Col md={3}>
-                    <Button
-                        variant="primary"
-                        onClick={() => navigate(COMPARE, { state: { currentProduct: product, compareProducts: [] } })}
-                    >
+                    <Button variant="primary" onClick={handleCompare}>
                         Сравнить
                     </Button>
                 </Col>
