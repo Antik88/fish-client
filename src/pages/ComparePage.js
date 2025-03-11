@@ -1,46 +1,79 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Table } from "react-bootstrap";
-import ProductCard from "../components/ProductCard";
-import { getAllProducts } from "../http/productApi";
-import ProductShortCard from "../components/ProductShortCard";
+import { Button, Col, Container, Row, Spinner, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { getAllProducts } from "../http/productApi";
+import { getAllRegionById } from "../http/regionApi";
 import { PRODUCT_ROUTE } from "../utils/consts";
+import ProductShortCard from "../components/ProductShortCard";
 
-const ComparePage = () => {
+export default function ComparePage () {
     const [products, setProducts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [compareProducts, setCompareProducts] = useState([]);
-    const navigate = useNavigate()
-    const currentProduct = compareProducts.length > 0 ? compareProducts[0] : null;
-    const otherProducts = compareProducts.slice(1);
-
+    const [regions, setRegions] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const storedProducts = JSON.parse(localStorage.getItem("compareProducts") || "[]");
+        const storedProducts = JSON.parse(localStorage.getItem("compareProducts") || []);
         if (storedProducts.length > 0) {
             setCompareProducts(storedProducts);
+            loadRegionsForProducts(storedProducts);
+        } else {
+            setIsLoading(false);
         }
     }, []);
 
+    useEffect(() => {
+        getAllProducts().then((data) => {
+            setProducts(data);
+        });
+    }, []);
+
+    const loadRegionsForProducts = async (products) => {
+        const regionsData = {};
+        for (const product of products) {
+            if (product.originRegionId) {
+                const region = await getAllRegionById(product.originRegionId);
+                regionsData[product.originRegionId] = region;
+            }
+        }
+        setRegions(regionsData);
+        setIsLoading(false);
+    };
+
+    const handleClearCompare = () => {
+        localStorage.removeItem("compareProducts");
+        setCompareProducts([]);
+        navigate(PRODUCT_ROUTE);
+    };
 
     const handleSelectProduct = (product) => {
         if (!compareProducts.some((p) => p.productId === product.productId)) {
             const updatedList = [...compareProducts, product];
             localStorage.setItem("compareProducts", JSON.stringify(updatedList));
             setCompareProducts(updatedList);
+            loadRegionsForProducts(updatedList);
         }
     };
 
-    useEffect(() => {
-        getAllProducts().then((data) => {
-            setProducts(data);
-            setIsLoading(false);
-        });
-    }, []);
-
-    if (!currentProduct) {
-        return <Container><h2>Нет данных для сравнения</h2></Container>;
+    if (isLoading) {
+        return (
+            <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+                <Spinner animation="border" />
+            </Container>
+        );
     }
+
+    if (compareProducts.length === 0) {
+        return (
+            <Container>
+                <h2>Нет данных для сравнения</h2>
+            </Container>
+        );
+    }
+
+    const currentProduct = compareProducts[0];
+    const otherProducts = compareProducts.slice(1);
 
     return (
         <Container>
@@ -49,11 +82,7 @@ const ComparePage = () => {
                     <h2>Сравнение продуктов</h2>
                 </Col>
                 <Col>
-                    <Button variant="danger" onClick={() => {
-                        localStorage.removeItem("compareProducts");
-                        setCompareProducts([]);
-                        navigate(PRODUCT_ROUTE)
-                    }}>
+                    <Button variant="danger" onClick={handleClearCompare}>
                         Очистить сравнение
                     </Button>
                 </Col>
@@ -64,19 +93,81 @@ const ComparePage = () => {
                         <tr>
                             <th>Параметр</th>
                             <th>{currentProduct.name}</th>
-                            {otherProducts.map(p => <th key={p.productId}>{p.name}</th>)}
+                            {otherProducts.map((p) => (
+                                <th key={p.productId}>{p.name}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Вес продукта</td>
+                            <td>Регион происхождения</td>
+                            <td>{regions[currentProduct.originRegionId]?.name || "Нет данных"}</td>
+                            {otherProducts.map((p) => (
+                                <td key={p.productId}>{regions[p.originRegionId]?.name || "Нет данных"}</td>
+                            ))}
+                        </tr>
+                        <tr>
+                            <td>Дата отбора</td>
+                            <td>{currentProduct.selectionDate}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.selectionDate}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Вес продукта (кг)</td>
                             <td>{currentProduct.weightProduct}</td>
                             {otherProducts.map(p => <td key={p.productId}>{p.weightProduct}</td>)}
                         </tr>
                         <tr>
-                            <td>Срок годности</td>
+                            <td>Срок годности (дней)</td>
                             <td>{currentProduct.expirationDate}</td>
                             {otherProducts.map(p => <td key={p.productId}>{p.expirationDate}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Длина TL</td>
+                            <td>{currentProduct.lengthTL}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.lengthTL}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Длина SL</td>
+                            <td>{currentProduct.lengthSl}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.lengthSl}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Длина FL</td>
+                            <td>{currentProduct.lengthFl}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.lengthFl}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Коэффициент K</td>
+                            <td>{currentProduct.k}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.k}</td>)}
+                        </tr>
+                        {[
+                            { key: 'Mn', title: 'Марганец (Mn, мкг/кг)', prop: 'mnUgKg' },
+                            { key: 'Co', title: 'Кобальт (Co, мкг/кг)', prop: 'coUgKg' },
+                            { key: 'Ni', title: 'Никель (Ni, мкг/кг)', prop: 'niUgKg' },
+                            { key: 'Cu', title: 'Медь (Cu, мг/кг)', prop: 'cuMgKg' },
+                            { key: 'Zn', title: 'Цинк (Zn, мг/кг)', prop: 'znMgKg' },
+                            { key: 'As', title: 'Мышьяк (As, мг/кг)', prop: 'asMgKg' },
+                            { key: 'Se', title: 'Селен (Se, мкг/кг)', prop: 'seUgKg' },
+                            { key: 'Cd', title: 'Кадмий (Cd, мкг/кг)', prop: 'cdUgKg' },
+                            { key: 'Hg', title: 'Ртуть (Hg, мкг/кг)', prop: 'hgUgKg' },
+                            { key: 'Pb', title: 'Свинец (Pb, мкг/кг)', prop: 'pbUgKg' },
+                        ].map(({ key, title, prop }) => (
+                            <tr key={key}>
+                                <td>{title}</td>
+                                <td>{currentProduct[prop]} / {currentProduct[`${prop}Sy`]}</td>
+                                {otherProducts.map(p => <td key={p.productId}>{p[prop]} / {p[`${prop}Sy`]}</td>)}
+                            </tr>
+                        ))}
+                        <tr>
+                            <td>Оценка безопасности</td>
+                            <td>{currentProduct.safetyScore}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.safetyScore}</td>)}
+                        </tr>
+                        <tr>
+                            <td>Информация о происхождении</td>
+                            <td>{currentProduct.originInfo}</td>
+                            {otherProducts.map(p => <td key={p.productId}>{p.originInfo}</td>)}
                         </tr>
                     </tbody>
                 </Table>
@@ -103,5 +194,3 @@ const ComparePage = () => {
         </Container>
     );
 };
-
-export default ComparePage;
