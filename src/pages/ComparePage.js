@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Spinner, Table } from "react-bootstrap";
+import { Button, Col, Container, Form, InputGroup, Row, Spinner, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { getAllProducts } from "../http/productApi";
+import { getAllProducts, getAllProductsByName } from "../http/productApi";
 import { getAllRegionById } from "../http/regionApi";
 import { PRODUCT_ROUTE } from "../utils/consts";
 import ProductShortCard from "../components/ProductShortCard";
 
-export default function ComparePage () {
+export default function ComparePage() {
     const [products, setProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [compareProducts, setCompareProducts] = useState([]);
     const [regions, setRegions] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -28,6 +29,18 @@ export default function ComparePage () {
             setProducts(data);
         });
     }, []);
+
+    const handleClearFilter = async () => {
+        setSearchQuery("");
+
+        const data = await getAllProducts();
+        setProducts(data);
+    };
+
+    const handleSearch = async () => {
+        const data = await getAllProductsByName(searchQuery);
+        setProducts(data);
+    };
 
     const loadRegionsForProducts = async (products) => {
         const regionsData = {};
@@ -171,6 +184,26 @@ export default function ComparePage () {
                         </tr>
                     </tbody>
                 </Table>
+            </Row>
+            <Row className="mb-3">
+                <Col md={3}>
+                    <InputGroup>
+                        <Form.Control
+                            type="text"
+                            placeholder="Поиск по названию"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <Button onClick={handleSearch} variant="outline-secondary">
+                            Поиск
+                        </Button>
+                        {(searchQuery) && (
+                            <Button variant="secondary" onClick={handleClearFilter}>
+                                Очистить
+                            </Button>
+                        )}
+                    </InputGroup>
+                </Col>
             </Row>
             <Row className="d-flex flex-wrap gap-2">
                 {products.map((product) => {
